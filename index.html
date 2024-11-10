@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operaciones con Matrices</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-r from-gray-100 via-gray-300 to-gray-100 font-sans">
+
+    <div class="max-w-7xl mx-auto p-6 flex space-x-6">
+        <!-- Formulario de entrada (izquierda) -->
+        <div class="w-1/2 bg-white shadow-lg rounded-lg p-6 h-[450px] overflow-y-auto">
+            <h1 class="text-3xl font-semibold text-center text-gray-800 mb-6">Operaciones con Matrices</h1>
+
+            <!-- Selección de operación -->
+            <div class="mb-4">
+                <label for="operation" class="block text-lg text-gray-700">Selecciona una operación</label>
+                <select id="operation" class="w-full p-2 mt-2 border border-gray-300 rounded-md">
+                    <option value="suma">Suma</option>
+                    <option value="resta">Resta</option>
+                    <option value="multiplicacion">Multiplicación</option>
+                </select>
+            </div>
+
+            <!-- Ingreso de dimensiones de la matriz -->
+            <div class="mb-4">
+                <label for="rows" class="block text-lg text-gray-700">Número de filas</label>
+                <input type="number" id="rows" class="w-full p-2 mt-2 border border-gray-300 rounded-md" placeholder="Ej. 2" />
+            </div>
+
+            <div class="mb-4">
+                <label for="cols" class="block text-lg text-gray-700">Número de columnas</label>
+                <input type="number" id="cols" class="w-full p-2 mt-2 border border-gray-300 rounded-md" placeholder="Ej. 2" />
+            </div>
+
+            <button onclick="generateMatrix()" class="w-full bg-blue-500 text-white p-2 rounded-md mt-4 hover:bg-blue-600 transition">Generar matriz</button>
+        </div>
+
+        <!-- Contenedor de matrices y resultados (derecha) -->
+        <div class="w-1/2 space-y-6">
+            <!-- Contenedor para matrices -->
+            <div id="matrix-container" class="bg-white shadow-lg rounded-lg p-6 h-[450px] overflow-y-auto hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Introduce los valores de la matriz</h2>
+                <div id="matrix-inputs"></div>
+                <button onclick="performOperation()" class="w-full bg-green-500 text-white p-2 rounded-md mt-4 hover:bg-green-600 transition">Realizar Operación</button>
+            </div>
+
+            <!-- Contenedor de resultados -->
+            <div id="result-container" class="bg-white shadow-lg rounded-lg p-6 hidden">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4">Resultado</h2>
+                <div id="result"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let rows, cols, matrixA = [], matrixB = [], resultMatrix = [];
+
+        // Función para generar los campos de entrada para la matriz
+        function generateMatrix() {
+            rows = document.getElementById("rows").value;
+            cols = document.getElementById("cols").value;
+
+            if (!rows || !cols) {
+                alert("Por favor ingrese las dimensiones de la matriz.");
+                return;
+            }
+
+            matrixA = [];
+            matrixB = [];
+
+            let matrixInputs = document.getElementById("matrix-inputs");
+            matrixInputs.innerHTML = "";
+            let matrixHtml = "";
+
+            // Generar entradas para la matriz A
+            matrixHtml += "<h3 class='text-lg font-semibold text-gray-700 mb-2'>Matriz A</h3>";
+            for (let i = 0; i < rows; i++) {
+                matrixHtml += "<div class='flex space-x-2 mb-2'>";
+                for (let j = 0; j < cols; j++) {
+                    matrixHtml += `<input type="number" class="p-2 border border-gray-300 rounded-md w-16" id="a-${i}-${j}" placeholder="0">`;
+                }
+                matrixHtml += "</div>";
+            }
+
+            // Generar entradas para la matriz B
+            matrixHtml += "<h3 class='text-lg font-semibold text-gray-700 mt-6 mb-2'>Matriz B</h3>";
+            for (let i = 0; i < rows; i++) {
+                matrixHtml += "<div class='flex space-x-2 mb-2'>";
+                for (let j = 0; j < cols; j++) {
+                    matrixHtml += `<input type="number" class="p-2 border border-gray-300 rounded-md w-16" id="b-${i}-${j}" placeholder="0">`;
+                }
+                matrixHtml += "</div>";
+            }
+
+            matrixInputs.innerHTML = matrixHtml;
+            document.getElementById("matrix-container").classList.remove("hidden");
+        }
+
+        // Función para realizar la operación seleccionada
+        function performOperation() {
+            matrixA = [];
+            matrixB = [];
+
+            // Obtener los valores de la matriz A
+            for (let i = 0; i < rows; i++) {
+                matrixA[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    matrixA[i][j] = parseFloat(document.getElementById(`a-${i}-${j}`).value) || 0;
+                }
+            }
+
+            // Obtener los valores de la matriz B
+            for (let i = 0; i < rows; i++) {
+                matrixB[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    matrixB[i][j] = parseFloat(document.getElementById(`b-${i}-${j}`).value) || 0;
+                }
+            }
+
+            let operation = document.getElementById("operation").value;
+            resultMatrix = [];
+
+            if (operation === "suma") {
+                resultMatrix = addMatrices(matrixA, matrixB);
+            } else if (operation === "resta") {
+                resultMatrix = subtractMatrices(matrixA, matrixB);
+            } else if (operation === "multiplicacion") {
+                resultMatrix = multiplyMatrices(matrixA, matrixB);
+            }
+
+            displayResult(resultMatrix);
+        }
+
+        // Funciones para las operaciones
+        function addMatrices(A, B) {
+            let result = [];
+            for (let i = 0; i < rows; i++) {
+                result[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    result[i][j] = A[i][j] + B[i][j];
+                }
+            }
+            return result;
+        }
+
+        function subtractMatrices(A, B) {
+            let result = [];
+            for (let i = 0; i < rows; i++) {
+                result[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    result[i][j] = A[i][j] - B[i][j];
+                }
+            }
+            return result;
+        }
+
+        function multiplyMatrices(A, B) {
+            let result = [];
+            for (let i = 0; i < rows; i++) {
+                result[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    result[i][j] = A[i][j] * B[i][j];
+                }
+            }
+            return result;
+        }
+
+        // Función para mostrar el resultado de la operación
+        function displayResult(matrix) {
+            let resultHtml = "<table class='table-auto border-collapse w-full text-center'><thead><tr>";
+            for (let i = 0; i < cols; i++) {
+                resultHtml += `<th class='p-3 border-b'>Columna ${i + 1}</th>`;
+            }
+            resultHtml += "</tr></thead><tbody>";
+
+            for (let i = 0; i < rows; i++) {
+                resultHtml += "<tr>";
+                for (let j = 0; j < cols; j++) {
+                    resultHtml += `<td class='p-3 border-b'>${matrix[i][j]}</td>`;
+                }
+                resultHtml += "</tr>";
+            }
+
+            resultHtml += "</tbody></table>";
+            document.getElementById("result").innerHTML = resultHtml;
+            document.getElementById("result-container").classList.remove("hidden");
+        }
+    </script>
+
+</body>
+</html>
